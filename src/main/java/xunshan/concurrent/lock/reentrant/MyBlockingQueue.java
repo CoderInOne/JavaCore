@@ -4,6 +4,7 @@ import xunshan.util.Log;
 import xunshan.util.ThreadUtils;
 
 import java.util.LinkedList;
+import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -16,32 +17,67 @@ public class MyBlockingQueue {
     private static final String TAG = MyBlockingQueue.class.getSimpleName();
     private int counter = 0;
     private LinkedList<String> queue = new LinkedList<String>();
-    private Lock lock = new ReentrantLock();
-    private int capacity = 10000;
+    private ReentrantLock putlock = new ReentrantLock();
+    private Condition notFull = putlock.newCondition();
+    private ReentrantLock takelock = new ReentrantLock();
+    private Condition notEmpty = takelock.newCondition();
+    private int capacity = 100;
 
     public void put(String value) {
-        lock.lock();
+        putlock.lock();
         try {
             if(counter == capacity) {
-                return;
+                try {
+                    notFull.await();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
             queue.add(value);
+            Log.d(TAG, ThreadUtils.getThreadName(), " + " + value);
             counter++;
         } finally {
-            lock.unlock();
+            putlock.unlock();
+        }
+
+        if(queue.size() > 0) {
+            signalNotEmpty();
         }
     }
 
-    public String get() {
-        lock.lock();
+    private void signalNotEmpty() {
+        final ReentrantLock takeLock = this.takelock;
+        takeLock.lock();
+        try {
+            notEmpty.signal();
+        } finally {
+            takeLock.unlock();
+        }
+    }
+
+    public String get() throws InterruptedException {
+        takelock.lock();
         try {
             if(queue.size() == 0) {
-                return null;
+                notEmpty.await();
             }
             counter--;
             return queue.remove();
         } finally {
-            lock.unlock();
+            takelock.unlock();
+            if(queue.size() <= capacity) {
+                signalNotFull();
+            }
+        }
+    }
+
+    private void signalNotFull() {
+        final ReentrantLock putLock = this.putlock;
+        putLock.lock();
+        try {
+            notFull.signal();
+        } finally {
+            putLock.unlock();
         }
     }
 
@@ -52,7 +88,7 @@ public class MyBlockingQueue {
         new Thread(new Runnable() {
             public void run() {
                 int i = 0;
-                while(i-- < 1000) {
+                while(i++ < 1000) {
                     queue.put("hello-" + i);
                 }
             }
@@ -61,8 +97,13 @@ public class MyBlockingQueue {
         new Thread(new Runnable() {
             public void run() {
                 while(true) {
-                    String s = queue.get();
-                    Log.d(TAG, ThreadUtils.getThreadName(), s);
+                    String s = null;
+                    try {
+                        s = queue.get();
+                        Log.d(TAG, ThreadUtils.getThreadName(), " - " + s);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         }).start();

@@ -48,7 +48,8 @@ public class MyBlockingQueue<T> {
         final MyBlockingQueue<String> queue = new MyBlockingQueue<String>(10);
         new Thread(new Runnable(){
             public void run() {
-                while(true) {
+                int i = 10000;
+                while(i-- > 0) {
                     try {
                         queue.put("hello");
                     } catch (InterruptedException e) {
