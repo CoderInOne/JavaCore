@@ -1,4 +1,4 @@
-package xunshan.concurrent;
+package xunshan.concurrent.basic;
 
 import xunshan.util.Log;
 
