@@ -26,6 +26,7 @@ package xunshan.concurrent.sync;
              20
              30
              30
+ See also: http://docs.oracle.com/javase/tutorial/essential/concurrency/syncrgb.html
  */
 class Shared
 {

@@ -5,6 +5,7 @@ package xunshan.concurrent.sync;
  * happens-before relationship:
  * guarantee that memory writes by one specific statement are visible to another specific statement.
  * See Interference.Shared.SharedMethod
+ * See also: http://docs.oracle.com/javase/tutorial/essential/concurrency/syncrgb.html
  */
 public class MemoryConsistencyError {
 }
