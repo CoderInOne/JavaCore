@@ -15,7 +15,7 @@ import java.net.Socket;
  * run it by:
  *   javac...
  *   java -Djavax.net.ssl.keyStore=mySrvKeystore -Djavax.net.ssl.keyStorePassword=eldorado EchoServer
- *   java -Djavax.net.ssl.keyStore=mySrvKeystore -Djavax.net.ssl.keyStorePassword=eldorado EchoServer
+ *   java -Djavax.net.ssl.trustStore=mySrvKeystore -Djavax.net.ssl.keyStorePassword=eldorado EchoClient
  */
 public class EchoServer {
     public static void main(String[] args) throws IOException {
