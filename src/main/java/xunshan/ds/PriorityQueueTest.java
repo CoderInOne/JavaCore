@@ -7,6 +7,8 @@ import java.util.PriorityQueue;
  *
  * 优先队列的要点
  * 1. 上滤&下滤过程
+ *
+ * 参考信息： http://algs4.cs.princeton.edu/24pq/
  */
 public class PriorityQueueTest {
     public static void main(String[] args) {
